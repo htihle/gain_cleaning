@@ -192,7 +192,7 @@ def fit_gain_fluctuations(y_feed, tsys, sigma0_prior, fknee_prior, alpha_prior, 
     return dg, dT, alpha
 
 def filter_obsid_data(filename, sigma0_prior, fknee_prior, alpha_prior, n_cut=4000, make_plots=False):
-    n_feeds = 1 # choose fewer feeds for quicker runtime (during debugging etc)
+    n_feeds = 19 # choose fewer feeds for quicker runtime (during debugging etc)
 
     # removing n_cut samples at start and end of observation to avoid vane measurements 
     # (this should clearly be done in a more proper way)

@@ -7,7 +7,7 @@ import tools
 make_plots = True
 
 # estimates of gain fluctuation power spectrum for each feed from season 1
-filename = '../Cf_prior_data.hdf5'
+filename = 'Cf_prior_data.hdf5'
 with h5py.File(filename, mode="r") as my_file:
     alpha_prior = np.array(my_file['alpha_prior'][()])
     fknee_prior = np.array(my_file['fknee_prior'][()])
@@ -21,9 +21,10 @@ d_clean_full = np.array([], dtype=float)
 ra_full = np.array([], dtype=float)
 dec_full = np.array([], dtype=float)
 dg_full = np.array([], dtype=float)
-file_list = ['../comap-0022001-2021-07-15-142002.hd5', '../comap-0025911-2021-12-10-082530.hd5']  # ['../comap-0025911-2021-12-10-082530.hd5']
-for file in file_list:
-    d_mean, d_clean_mean, ra, dec, dg = tools.filter_obsid_data(file, sigma0_prior, fknee_prior, alpha_prior, make_plots=make_plots)
+l1_dir = '/mn/stornext/d22/cmbco/comap/protodir/level1/'
+file_list = ['2021-07/comap-0022001-2021-07-15-142002.hd5', '2021-12/comap-0025911-2021-12-10-082530.hd5']  # ['../comap-0025911-2021-12-10-082530.hd5']
+for filename in file_list:
+    d_mean, d_clean_mean, ra, dec, dg = tools.filter_obsid_data(l1_dir + filename, sigma0_prior, fknee_prior, alpha_prior, make_plots=make_plots)
 
     n_feeds, Ntod = d_mean.shape
     
