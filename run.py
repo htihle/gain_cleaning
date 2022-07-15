@@ -56,9 +56,9 @@ dec_bins = np.linspace(lims[1, 0], lims[1, 1], nside+1)
 
 
 # we do no noise weighting in this destriping, so this is far from optimal
-map_destripe_clean, map_nw, hitmap = df.make_map_from_datasets(d_clean_full, pointing, lims, nside, basis_size=basis_size)
-map_destripe, map_nw, hitmap = df.make_map_from_datasets(d_full, pointing, lims, nside, basis_size=basis_size)
-map_dg, map_nw, hitmap = df.make_map_from_datasets(dg_full, pointing, lims, nside, basis_size=basis_size)
+map_destripe_clean, map_nw, hitmap = tools.make_map_from_datasets(d_clean_full, pointing, lims, nside, basis_size=basis_size)
+map_destripe, map_nw, hitmap = tools.make_map_from_datasets(d_full, pointing, lims, nside, basis_size=basis_size)
+map_dg, map_nw, hitmap = tools.make_map_from_datasets(dg_full, pointing, lims, nside, basis_size=basis_size)
 
 np.savetxt('map_clean.txt', map_destripe_clean)
 np.savetxt('map_unclean.txt', map_destripe)
@@ -70,30 +70,30 @@ vmax = 0.1
 plt.figure()
 plt.title('nhit')
 plt.imshow(hitmap, interpolation='none')
-plt.savefig('nhit.png')
+plt.savefig('figures/nhit.png')
 
 plt.figure()
 plt.title('dg')
 plt.imshow(map_dg, interpolation='none')
-plt.savefig('dg.png')
+plt.savefig('figures/dg.png')
 plt.colorbar()
 
 plt.figure()
 plt.title('destriped difference')
 plt.imshow(map_destripe_clean - map_destripe, interpolation='none', vmin=-vmax, vmax=vmax)
-plt.savefig('destriped_diff.png')
+plt.savefig('figures/destriped_diff.png')
 plt.colorbar()
 
 plt.figure()
 plt.title('destriped')
 plt.imshow(map_destripe, interpolation='none', vmin=-vmax, vmax=vmax)
-plt.savefig('destriped.png')
+plt.savefig('figures/destriped.png')
 plt.colorbar()
 
 plt.figure()
 plt.title('destriped_clean')
 plt.imshow(map_destripe_clean, interpolation='none', vmin=-vmax, vmax=vmax)
-plt.savefig('destriped_clean.png')
+plt.savefig('figures/destriped_clean.png')
 plt.colorbar()
 
 plt.show()

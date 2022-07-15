@@ -1,7 +1,84 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import h5py
+from scipy.sparse import csc_matrix
+from scipy.sparse.linalg import LinearOperator
+import scipy
 
+def find_index(arr, n, K):
+    # Traverse the array
+    for i in range(n):
+         
+        # If K is found
+        if arr[i] == K:
+            return i
+             
+        # If arr[i] exceeds K
+        elif arr[i] > K:
+            return i
+             
+    # If all array elements are smaller
+    return n
+
+def make_map_from_datasets(y, pointing, lims, nside, basis_size):
+    Ntod = len(y)
+    ra = pointing[:, 0]
+    dec = pointing[:, 1]
+    Nbasis = Ntod//basis_size
+
+    data = np.ones(Ntod)
+    col_idx = np.arange(Ntod, dtype=int)
+    row_idx = np.arange(Ntod, dtype=int)//basis_size
+
+    F = csc_matrix((data, (col_idx, row_idx)), shape=(Ntod, Nbasis))
+
+    Nsidemap = nside
+    Nmap = Nsidemap**2
+
+    ra_bins = np.linspace(lims[0, 0], lims[0, 1], Nsidemap+1)
+    dec_bins = np.linspace(lims[1, 0], lims[1, 1], Nsidemap+1)
+
+    ra_inds = np.array([find_index(ra_bins, Nsidemap, ra_val) for ra_val in ra])
+    dec_inds = np.array([find_index(dec_bins, Nsidemap, dec_val) for dec_val in dec])
+
+    P = csc_matrix((np.ones(Ntod), (np.arange(Ntod, dtype=int), ra_inds + Nsidemap*dec_inds)), shape=(Ntod, Nmap))
+
+    Corr_wn_inv = scipy.sparse.diags(np.ones(Ntod))
+
+    PT = csc_matrix(P.T)
+    FT = csc_matrix(F.T)
+    inv_PT_C_P = scipy.sparse.diags(1.0/(PT.dot(Corr_wn_inv).dot(P)).diagonal())
+    P_inv_PT_C_P = P.dot(inv_PT_C_P)
+    FT_C_F = FT.dot(Corr_wn_inv).dot(F)
+    FT_C_P_inv_PT_C_P = FT.dot(Corr_wn_inv.dot(P_inv_PT_C_P))
+    PT_C_F = PT.dot(Corr_wn_inv).dot(F)
+
+    def LHS(a):
+        a1 = FT_C_F.dot(a)
+        a2 = PT_C_F.dot(a)
+        a3 = FT_C_P_inv_PT_C_P.dot(a2)
+        return a1 - a3
+
+    A = LinearOperator((Nbasis,Nbasis), matvec=LHS)
+    b = F.T.dot(Corr_wn_inv).dot(y) - FT_C_P_inv_PT_C_P.dot(PT.dot(Corr_wn_inv).dot(y))
+
+    def solve_cg(A, b):
+        num_iter = 0
+        x0 = np.zeros(Nbasis)
+        a, info = scipy.sparse.linalg.cg(A, b, x0=x0)
+        return a, info
+
+    a, info = solve_cg(A, b)
+    map_nw = inv_PT_C_P.dot(PT.dot(Corr_wn_inv).dot(y))
+    map_destripe = inv_PT_C_P.dot(PT.dot(Corr_wn_inv).dot(y-F.dot(a)))
+    template_map = inv_PT_C_P.dot(PT.dot(Corr_wn_inv).dot(F.dot(a)))
+    hitmap = PT.dot(P).diagonal()
+
+    map_destripe = map_destripe.reshape((Nsidemap, Nsidemap))
+    map_nw = map_nw.reshape((Nsidemap, Nsidemap))
+    template_map = template_map.reshape((Nsidemap, Nsidemap))
+    hitmap = hitmap.reshape((Nsidemap, Nsidemap))
+    return map_destripe, map_nw, hitmap
 
 def bin_data_maxbin(arr, slope=1.0, cut=20, maxbin=2000):
     # code for binning power spectra in a nice way
@@ -115,7 +192,7 @@ def fit_gain_fluctuations(y_feed, tsys, sigma0_prior, fknee_prior, alpha_prior, 
     return dg, dT, alpha
 
 def filter_obsid_data(filename, sigma0_prior, fknee_prior, alpha_prior, n_cut=4000, make_plots=False):
-    n_feeds = 19  # choose fewer feeds for quicker runtime (during debugging etc)
+    n_feeds = 1 # choose fewer feeds for quicker runtime (during debugging etc)
 
     # removing n_cut samples at start and end of observation to avoid vane measurements 
     # (this should clearly be done in a more proper way)
@@ -127,7 +204,7 @@ def filter_obsid_data(filename, sigma0_prior, fknee_prior, alpha_prior, n_cut=40
     n_tod = len(ra[0])
 
     # calibration database
-    filename_tsys = '../level1_database_full.h5'
+    filename_tsys = 'level1_database_selected.h5'
     with h5py.File(filename_tsys, mode="r") as my_file:
         tsys_all = my_file['/obsid/' + obsid + '/Tsys_obsidmean'][()][:n_feeds]
 
