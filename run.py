@@ -71,30 +71,35 @@ vmax = 0.1
 plt.figure()
 plt.title('nhit')
 plt.imshow(hitmap, interpolation='none')
+plt.colorbar()
 plt.savefig('figures/nhit.png', bbox_inches='tight')
+
 
 plt.figure()
 plt.title('dg')
 plt.imshow(map_dg, interpolation='none')
-plt.savefig('figures/dg.png', bbox_inches='tight')
 plt.colorbar()
+plt.savefig('figures/dg.png', bbox_inches='tight')
+
 
 plt.figure()
 plt.title('destriped difference')
 plt.imshow(map_destripe_clean - map_destripe, interpolation='none', vmin=-vmax, vmax=vmax)
-plt.savefig('figures/destriped_diff.png', bbox_inches='tight')
 plt.colorbar()
+plt.savefig('figures/destriped_diff.png', bbox_inches='tight')
+
 
 plt.figure()
 plt.title('destriped')
 plt.imshow(map_destripe, interpolation='none', vmin=-vmax, vmax=vmax)
-plt.savefig('figures/destriped.png', bbox_inches='tight')
 plt.colorbar()
+plt.savefig('figures/destriped.png', bbox_inches='tight')
+
 
 plt.figure()
 plt.title('destriped_clean')
 plt.imshow(map_destripe_clean, interpolation='none', vmin=-vmax, vmax=vmax)
-plt.savefig('figures/destriped_clean.png', bbox_inches='tight')
 plt.colorbar()
+plt.savefig('figures/destriped_clean.png', bbox_inches='tight')
 
 #plt.show()
