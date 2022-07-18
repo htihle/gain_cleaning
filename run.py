@@ -97,4 +97,4 @@ plt.imshow(map_destripe_clean, interpolation='none', vmin=-vmax, vmax=vmax)
 plt.savefig('figures/destriped_clean.png')
 plt.colorbar()
 
-plt.show()
+#plt.show()

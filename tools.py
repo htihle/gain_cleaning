@@ -235,7 +235,7 @@ def filter_obsid_data(filename, sigma0_prior, fknee_prior, alpha_prior, n_cut=40
             plt.legend()
             plt.xlabel('Time samples')
             plt.savefig('figures/gain_tod_%02i.png' % (feed+1), bbox_inches='tight')
-            plt.show()
+            #plt.show()
 
         # remove gain fluctuations
         d_clean = d[:, :, :] - dg[feed][None, None, :]
@@ -288,5 +288,5 @@ def filter_obsid_data(filename, sigma0_prior, fknee_prior, alpha_prior, n_cut=40
             plt.ylabel('Power Spectral Density')
             plt.xlabel('Frequency [Hz]')
             plt.savefig('figures/ps_gain_prior_%02i.png' % (feed+1), bbox_inches='tight')
-            plt.show()
+            #plt.show()
     return d_mean, d_clean_mean, ra, dec, dg
